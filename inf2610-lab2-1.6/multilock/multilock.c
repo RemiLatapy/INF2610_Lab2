@@ -9,6 +9,8 @@
 #include <stdlib.h>
 #include <getopt.h>
 #include <math.h>
+#include <pthread.h>
+#include <string.h>
 
 #include "multilock.h"
 #include "serial.h"

@@ -16,9 +16,11 @@ mutex.o: mutex.c /usr/include/stdc-predef.h /usr/include/stdlib.h \
  /usr/include/wchar.h \
  /usr/lib/gcc/x86_64-redhat-linux/5.1.1/include/stdarg.h \
  /usr/include/bits/stdio_lim.h /usr/include/bits/sys_errlist.h \
- /usr/include/bits/stdio.h /usr/include/xlocale.h /usr/include/pthread.h \
- /usr/include/sched.h /usr/include/bits/sched.h \
- /usr/include/bits/setjmp.h statistics.h multilock.h utils.h
+ /usr/include/bits/stdio.h /usr/include/xlocale.h /usr/include/string.h \
+ /usr/include/bits/string.h /usr/include/bits/string2.h \
+ /usr/include/pthread.h /usr/include/sched.h /usr/include/bits/sched.h \
+ /usr/include/bits/setjmp.h statistics.h multilock.h \
+ /usr/include/semaphore.h /usr/include/bits/semaphore.h utils.h
 
 /usr/include/stdc-predef.h:
 
@@ -92,6 +94,12 @@ mutex.o: mutex.c /usr/include/stdc-predef.h /usr/include/stdlib.h \
 
 /usr/include/xlocale.h:
 
+/usr/include/string.h:
+
+/usr/include/bits/string.h:
+
+/usr/include/bits/string2.h:
+
 /usr/include/pthread.h:
 
 /usr/include/sched.h:
@@ -103,5 +111,9 @@ mutex.o: mutex.c /usr/include/stdc-predef.h /usr/include/stdlib.h \
 statistics.h:
 
 multilock.h:
+
+/usr/include/semaphore.h:
+
+/usr/include/bits/semaphore.h:
 
 utils.h:

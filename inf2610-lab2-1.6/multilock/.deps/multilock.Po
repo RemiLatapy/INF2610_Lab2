@@ -20,8 +20,12 @@ multilock.o: multilock.c /usr/include/stdc-predef.h /usr/include/stdio.h \
  /usr/include/bits/huge_valf.h /usr/include/bits/huge_vall.h \
  /usr/include/bits/inf.h /usr/include/bits/nan.h \
  /usr/include/bits/mathdef.h /usr/include/bits/mathcalls.h \
- /usr/include/bits/mathinline.h multilock.h statistics.h serial.h mutex.h \
- semrelay.h spinlock.h
+ /usr/include/bits/mathinline.h /usr/include/pthread.h \
+ /usr/include/sched.h /usr/include/bits/sched.h /usr/include/xlocale.h \
+ /usr/include/bits/setjmp.h /usr/include/string.h \
+ /usr/include/bits/string.h /usr/include/bits/string2.h multilock.h \
+ statistics.h /usr/include/semaphore.h /usr/include/bits/semaphore.h \
+ serial.h mutex.h semrelay.h spinlock.h
 
 /usr/include/stdc-predef.h:
 
@@ -113,9 +117,29 @@ multilock.o: multilock.c /usr/include/stdc-predef.h /usr/include/stdio.h \
 
 /usr/include/bits/mathinline.h:
 
+/usr/include/pthread.h:
+
+/usr/include/sched.h:
+
+/usr/include/bits/sched.h:
+
+/usr/include/xlocale.h:
+
+/usr/include/bits/setjmp.h:
+
+/usr/include/string.h:
+
+/usr/include/bits/string.h:
+
+/usr/include/bits/string2.h:
+
 multilock.h:
 
 statistics.h:
+
+/usr/include/semaphore.h:
+
+/usr/include/bits/semaphore.h:
 
 serial.h:
 

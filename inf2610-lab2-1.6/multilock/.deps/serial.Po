@@ -16,7 +16,8 @@ serial.o: serial.c /usr/include/stdc-predef.h /usr/include/stdio.h \
  /usr/include/bits/time.h /usr/include/sys/sysmacros.h \
  /usr/include/bits/pthreadtypes.h /usr/include/alloca.h \
  /usr/include/bits/stdlib-bsearch.h /usr/include/bits/stdlib-float.h \
- statistics.h multilock.h
+ statistics.h multilock.h /usr/include/semaphore.h \
+ /usr/include/bits/semaphore.h
 
 /usr/include/stdc-predef.h:
 
@@ -91,3 +92,7 @@ serial.o: serial.c /usr/include/stdc-predef.h /usr/include/stdio.h \
 statistics.h:
 
 multilock.h:
+
+/usr/include/semaphore.h:
+
+/usr/include/bits/semaphore.h:

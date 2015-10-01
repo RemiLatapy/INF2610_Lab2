@@ -9,6 +9,7 @@
 #define MULTILOCK_H_
 
 #include "statistics.h"
+#include <semaphore.h>
 
 struct experiment;
 struct lib_def;
