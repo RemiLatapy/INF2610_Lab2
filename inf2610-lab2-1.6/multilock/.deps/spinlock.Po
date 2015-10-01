@@ -16,7 +16,9 @@ spinlock.o: spinlock.c /usr/include/stdc-predef.h /usr/include/stdlib.h \
  /usr/include/wchar.h \
  /usr/lib/gcc/x86_64-redhat-linux/5.1.1/include/stdarg.h \
  /usr/include/bits/stdio_lim.h /usr/include/bits/sys_errlist.h \
- /usr/include/bits/stdio.h minispinlock.h statistics.h multilock.h \
+ /usr/include/bits/stdio.h /usr/include/pthread.h /usr/include/sched.h \
+ /usr/include/bits/sched.h /usr/include/xlocale.h \
+ /usr/include/bits/setjmp.h minispinlock.h statistics.h multilock.h \
  /usr/include/semaphore.h /usr/include/bits/semaphore.h
 
 /usr/include/stdc-predef.h:
@@ -88,6 +90,16 @@ spinlock.o: spinlock.c /usr/include/stdc-predef.h /usr/include/stdlib.h \
 /usr/include/bits/sys_errlist.h:
 
 /usr/include/bits/stdio.h:
+
+/usr/include/pthread.h:
+
+/usr/include/sched.h:
+
+/usr/include/bits/sched.h:
+
+/usr/include/xlocale.h:
+
+/usr/include/bits/setjmp.h:
 
 minispinlock.h:
 
