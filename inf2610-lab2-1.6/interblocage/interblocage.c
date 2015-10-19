@@ -14,7 +14,7 @@
 #include <sys/time.h>
 #include <time.h>
 
-#define WATCHDOG_UDELAY 100000 // 100ms
+#define WATCHDOG_UDELAY 10000 // 100ms
 
 volatile int x;
 volatile int y;
@@ -24,6 +24,11 @@ pthread_mutex_t lock_two;
 pthread_barrier_t barrier;
 
 pthread_t threads[2];
+
+int mtxOneFoo = 0;
+int mtxOneBar = 0;
+int mtxTwoFoo = 0;
+int mtxTwoBar = 0;
 
 /*
  * Calcule pour un temp aléatoire
@@ -42,14 +47,21 @@ void *worker_foo(void *data)
         random_hog();
         // TODO: prendre lock_one, puis lock_two
 		pthread_mutex_lock(&lock_one);
+                mtxOneFoo++;
 		pthread_mutex_lock(&lock_two);
+                mtxTwoFoo++;
+                
         // TODO: forcer l'interblocage avec la barriere
-		//pthread_barrier_wait(&barrier);
+	//	pthread_barrier_wait(&barrier);
+                
         x = ++y;
         printf("foo %d\n", x);
+        
         // TODO: relacher lock_one et lock_two
 		pthread_mutex_unlock(&lock_two);
+                mtxTwoFoo--;
 		pthread_mutex_unlock(&lock_one);
+                mtxOneFoo--;
     }
     return NULL;
 }
@@ -60,14 +72,21 @@ void *worker_bar(void *data)
         random_hog();
         // TODO: prendre lock_two, puis lock_one
 		pthread_mutex_lock(&lock_two);
+                mtxTwoBar++;
 		pthread_mutex_lock(&lock_one);
+                mtxOneBar++;
+                
         // TODO: forcer l'interblocage avec la barriere
 	//	pthread_barrier_wait(&barrier);
+                
         x = ++y;
         printf("bar %d\n", x);
+        
         // TODO: relacher lock_two et lock_one
 		pthread_mutex_unlock(&lock_one);
+                mtxOneBar--;
 		pthread_mutex_unlock(&lock_two);
+                mtxTwoBar--;
     }
     return NULL;
 }
@@ -89,7 +108,12 @@ void init_seed(void)
 static void watchdog(int signr)
 {
     (void) signr;
+    
     // TODO: Si un interblocage est detecte, alors faire appel a exit(0)
+    if(mtxOneFoo && mtxTwoBar && mtxTwoFoo == 0 && mtxOneBar == 0) {
+        printf("Deadlock detected\n");
+        exit(0);
+    }
     printf("watchdog\n");
 }
 
