@@ -14,7 +14,7 @@
 #include <sys/time.h>
 #include <time.h>
 
-#define WATCHDOG_UDELAY 10000 // 100ms
+#define WATCHDOG_UDELAY 100000 // 100ms
 
 volatile int x;
 volatile int y;
@@ -46,22 +46,23 @@ void *worker_foo(void *data)
     while(1) {
         random_hog();
         // TODO: prendre lock_one, puis lock_two
-		pthread_mutex_lock(&lock_one);
-                mtxOneFoo++;
-		pthread_mutex_lock(&lock_two);
-                mtxTwoFoo++;
-                
+        pthread_mutex_lock(&lock_one);
+        mtxOneFoo++;
+        
         // TODO: forcer l'interblocage avec la barriere
-	//	pthread_barrier_wait(&barrier);
-                
+        pthread_barrier_wait(&barrier);
+        
+        pthread_mutex_lock(&lock_two);
+        mtxTwoFoo++;
+        
         x = ++y;
         printf("foo %d\n", x);
         
         // TODO: relacher lock_one et lock_two
-		pthread_mutex_unlock(&lock_two);
-                mtxTwoFoo--;
-		pthread_mutex_unlock(&lock_one);
-                mtxOneFoo--;
+        pthread_mutex_unlock(&lock_two);
+        mtxTwoFoo--;
+        pthread_mutex_unlock(&lock_one);
+        mtxOneFoo--;
     }
     return NULL;
 }
@@ -71,22 +72,23 @@ void *worker_bar(void *data)
     while(1) {
         random_hog();
         // TODO: prendre lock_two, puis lock_one
-		pthread_mutex_lock(&lock_two);
-                mtxTwoBar++;
-		pthread_mutex_lock(&lock_one);
-                mtxOneBar++;
-                
-        // TODO: forcer l'interblocage avec la barriere
-	//	pthread_barrier_wait(&barrier);
-                
+        pthread_mutex_lock(&lock_two);
+        mtxTwoBar++;
+        
+        // TODO: forcer l'interblocage avec la barriere		
+        pthread_barrier_wait(&barrier);
+        
+        pthread_mutex_lock(&lock_one);
+        mtxOneBar++;
+        
         x = ++y;
         printf("bar %d\n", x);
         
         // TODO: relacher lock_two et lock_one
-		pthread_mutex_unlock(&lock_one);
-                mtxOneBar--;
-		pthread_mutex_unlock(&lock_two);
-                mtxTwoBar--;
+        pthread_mutex_unlock(&lock_one);
+        mtxOneBar--;
+        pthread_mutex_unlock(&lock_two);
+        mtxTwoBar--;
     }
     return NULL;
 }
@@ -110,7 +112,7 @@ static void watchdog(int signr)
     (void) signr;
     
     // TODO: Si un interblocage est detecte, alors faire appel a exit(0)
-    if(mtxOneFoo && mtxTwoBar && mtxTwoFoo == 0 && mtxOneBar == 0) {
+    if(mtxOneFoo == 1 && mtxTwoBar == 1 && mtxTwoFoo == 0 && mtxOneBar == 0) {
         printf("Deadlock detected\n");
         exit(0);
     }
@@ -124,12 +126,12 @@ void timer_start() {
     struct itimerval timer;
     struct sigaction action;
     sigset_t set;
-
+    
     timer.it_interval.tv_sec = 0;
     timer.it_interval.tv_usec = WATCHDOG_UDELAY;
     timer.it_value.tv_sec = 0;
     timer.it_value.tv_usec = WATCHDOG_UDELAY;
-
+    
     sigemptyset(&action.sa_mask);
     action.sa_handler = watchdog;
     action.sa_flags = 0;
@@ -142,28 +144,28 @@ void timer_start() {
  */
 void timer_stop() {
     struct itimerval timer;
-
+    
     timer.it_interval.tv_sec = 0;
     timer.it_interval.tv_usec = 0;
     timer.it_value.tv_sec = 0;
     timer.it_value.tv_usec = 0;
-
+    
     setitimer(ITIMER_REAL, &timer, NULL);
 }
 
 int main(int argc, char **argv)
 {
     init_seed();
-
+    
     // TODO: initialiser lock_one et lock_two
-	pthread_mutex_init(&lock_one, NULL);
-	pthread_mutex_init(&lock_two, NULL);
-
+    pthread_mutex_init(&lock_one, NULL);
+    pthread_mutex_init(&lock_two, NULL);
+    
     // Initialisation de la barriere
     pthread_barrier_init(&barrier, NULL, 2);
-
+    
     timer_start();
-
+    
     /*
      * Creation des fils d'execution worker_foo et worker_bar
      * Toutes les variables sont globales, argument NULL
@@ -172,14 +174,14 @@ int main(int argc, char **argv)
     pthread_create(&threads[1], NULL, worker_bar, NULL);
     pthread_join(threads[0], NULL);
     pthread_join(threads[1], NULL);
-
+    
     timer_stop();
-
+    
     // TODO: destruction des verrous lock_one et lock_two
-	pthread_mutex_destroy(&lock_one);
-	pthread_mutex_destroy(&lock_two);
-
-
+    pthread_mutex_destroy(&lock_one);
+    pthread_mutex_destroy(&lock_two);
+    
+    
     printf("done\n");
     return 0;
 }
