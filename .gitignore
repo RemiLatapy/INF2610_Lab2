@@ -27,6 +27,7 @@
 *.i*86
 *.x86_64
 *.hex
+inf2610-lab2-1.6/lexique
 
 # Debug files
 *.dSYM/
