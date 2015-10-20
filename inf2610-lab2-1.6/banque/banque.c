@@ -22,6 +22,8 @@
 #define DEFAULT_AMOUNT 100000000
 static const char *const progname = PROGNAME;
 
+pthread_mutex_t lock_operation;
+
 struct account {
 	volatile long balance;
 };
@@ -35,10 +37,14 @@ struct operation {
 static struct account global_account;
 
 static struct operation ops[] = {
-	{ .account = &global_account, .amount = 5,  .name = "Montreal" },
-	{ .account = &global_account, .amount = -2, .name = "Paris" },
-	{ .account = &global_account, .amount = 3,  .name = "Johannesburg" },
-	{ .account = &global_account, .amount = -1,  .name = "Bangalore" },
+	{ .account = &global_account, .amount = 5,  .name = 
+"Montreal" },
+	{ .account = &global_account, .amount = -2, .name = "Paris" 
+},
+	{ .account = &global_account, .amount = 3,  .name = 
+"Johannesburg" },
+	{ .account = &global_account, .amount = -1,  .name = 
+"Bangalore" },
 	{ .account = NULL, .amount = 0, .name = NULL },
 };
 
@@ -63,9 +69,11 @@ static struct opts vars = {
 __attribute__((noreturn))
 static void usage(void) {
 	fprintf(stderr, "Usage: %s [OPTIONS] [COMMAND]\n", progname);
-	fprintf(stderr, "Execute un programme a un emplacement fixe en memoire\n");
+	fprintf(stderr, "Execute un programme a un emplacement fixe 
+en memoire\n");
 	fprintf(stderr, "\nOptions:\n\n");
-	fprintf(stderr, "--lib LIB        type de fil d'execution a utiliser [ serial | fork | pthread | pth ]\n");
+	fprintf(stderr, "--lib LIB        type de fil d'execution a 
+utiliser [ serial | fork | pthread | pth ]\n");
 	fprintf(stderr, "--amount AMOUNT  montant de depart\n");
 	fprintf(stderr, "--repeat NR      nombre de transactions\n");
 	fprintf(stderr, "--help           ce message d'aide\n");
@@ -87,7 +95,8 @@ static void parse_opts(int argc, char **argv) {
 	};
 	int idx;
 
-	while ((opt = getopt_long(argc, argv, "hr:a:l:", options, &idx)) != -1) {
+	while ((opt = getopt_long(argc, argv, "hr:a:l:", options, &
+idx)) != -1) {
 		switch (opt) {
 		case 'r':
 			vars.repeat = atol(optarg);
@@ -124,7 +133,8 @@ int gettid()
 }
 
 /*
- * Retourne le nombre d'opérations d'un tableau de struct operation.
+ * Retourne le nombre d'opérations d'un tableau de struct 
+operation.
  */
 int nr_ops(struct operation *ops) {
 	int nr = 0;
@@ -138,15 +148,18 @@ int nr_ops(struct operation *ops) {
 }
 
 /*
- * Routine d'exécution d'un ATM. Répète le nombre de fois spécifié l'opération sur le compte
+ * Routine d'exécution d'un ATM. Répète le nombre de fois 
+spécifié l'opération sur le compte
  */
 void *atm(void *data) {
 	unsigned long i;
 	struct operation *op = (struct operation *) data;
 
+	pthread_mutex_lock(&lock_operation); // On protege toute l'execution pour limiter les context switch (zone critique courte)
 	for (i = 0; i < vars.repeat; i++)
 		op->account->balance += op->amount;
 	printf("ATM %12s balance: %11ld $ (pid=%d, tid=%d)\n", op->name, op->account->balance, getpid(), gettid());
+	pthread_mutex_unlock(&lock_operation);
 	return NULL;
 }
 
@@ -175,11 +188,21 @@ void spawn_fork(struct account *ac) {
  * Démarrez tous les fils d'exécution simultanément
  */
 void spawn_pthread(struct account *ac) {
-    // TODO
+    int i;
+    int max = nr_ops(ops);
+    pthread_t tid[max];
+
+    for (i = 0; i < max; i++) {
+        pthread_create(&tid[i], NULL, atm, &ops[i]);
+    }
+    for (i = 0; i < max; i++) {
+        pthread_join(tid[i], NULL);
+    }
 }
 
 /*
- * Exécution des ATMs dans des fils d'exécution en espace utilisateur pth
+ * Exécution des ATMs dans des fils d'exécution en espace 
+utilisateur pth
  * Démarrez tous les fils d'exécution simultanément
  */
 void spawn_pth(struct account *ac) {
@@ -187,7 +210,8 @@ void spawn_pth(struct account *ac) {
 }
 
 /*
- * Retourne le nom d'une fonction correspondant à une adresse exécutable
+ * Retourne le nom d'une fonction correspondant à une adresse 
+exécutable
  */
 static inline char const *symname(void *addr) {
 	Dl_info sym;
@@ -202,6 +226,8 @@ int main(int argc, char **argv) {
 	int max = nr_ops(ops);
 	long expected = 0;
 	parse_opts(argc, argv);
+	
+	pthread_mutex_init(&lock_operation, NULL);
 
 	// Calcule la valeur finale attendue
 	expected = global_account.balance = vars.amount;
@@ -211,7 +237,11 @@ int main(int argc, char **argv) {
 
 	vars.lib(&global_account);
 	printf("%-21s %15ld $\n", "Start balance:", vars.amount);
-	printf("%-21s %15ld $\n", "End balance:", global_account.balance);
+	printf("%-21s %15ld $\n", "End balance:", global_account.
+balance);
 	printf("%-21s %15ld $\n", "Expected:", expected);
+	
+	pthread_mutex_destroy(&lock_operation);
+	
 	return 0;
 }
