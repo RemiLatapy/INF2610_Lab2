@@ -69,11 +69,9 @@ static struct opts vars = {
 __attribute__((noreturn))
 static void usage(void) {
 	fprintf(stderr, "Usage: %s [OPTIONS] [COMMAND]\n", progname);
-	fprintf(stderr, "Execute un programme a un emplacement fixe 
-en memoire\n");
+	fprintf(stderr, "Execute un programme a un emplacement fixe en memoire\n");
 	fprintf(stderr, "\nOptions:\n\n");
-	fprintf(stderr, "--lib LIB        type de fil d'execution a 
-utiliser [ serial | fork | pthread | pth ]\n");
+	fprintf(stderr, "--lib LIB        type de fil d'execution a utiliser [ serial | fork | pthread | pth ]\n");
 	fprintf(stderr, "--amount AMOUNT  montant de depart\n");
 	fprintf(stderr, "--repeat NR      nombre de transactions\n");
 	fprintf(stderr, "--help           ce message d'aide\n");
@@ -237,8 +235,7 @@ int main(int argc, char **argv) {
 
 	vars.lib(&global_account);
 	printf("%-21s %15ld $\n", "Start balance:", vars.amount);
-	printf("%-21s %15ld $\n", "End balance:", global_account.
-balance);
+	printf("%-21s %15ld $\n", "End balance:", global_account.balance);
 	printf("%-21s %15ld $\n", "Expected:", expected);
 	
 	pthread_mutex_destroy(&lock_operation);
